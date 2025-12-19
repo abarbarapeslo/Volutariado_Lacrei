@@ -1,0 +1,41 @@
+[tool.poetry]
+name = "voluntariado-lacrei"
+version = "1.0.0"
+description = "API RESTful de Gerenciamento de Consultas Médicas"
+authors = ["Bárbara Lopes"]
+readme = "README.md"
+license = "MIT"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.12"
+django = "^6.0"
+djangorestframework = "^3.16.1"
+djangorestframework-simplejwt = "^5.5.1"
+drf-spectacular = "^0.29.0"
+psycopg2-binary = "^2.9.11"
+python-dotenv = "^1.2.1"
+gunicorn = "^23.0.0"
+django-cors-headers = "^4.7.0"
+
+[tool.poetry.group.dev.dependencies]
+flake8 = "^7.1.0"
+pytest = "^8.3.0"
+pytest-django = "^4.9.0"
+coverage = "^7.6.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "voluntariado.settings"
+python_files = ["test_*.py", "*_test.py"]
+
+[tool.coverage.run]
+source = ["profissionais", "consultas"]
+omit = ["*/migrations/*", "*/tests/*", "*/teste/*"]
+
+[tool.flake8]
+max-line-length = 120
+exclude = [".git", "__pycache__", "migrations", ".venv", "venv"]
