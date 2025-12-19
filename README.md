@@ -2,6 +2,12 @@
 
 API RESTful desenvolvida com **Django + Django REST Framework**, focada em boas práticas, segurança e pronta para ambiente de produção. Este projeto permite o gerenciamento de **profissionais da saúde** e **consultas médicas**.
 
+## 🌐 Deploy
+
+- **API (Produção):** http://18.188.58.173:8000/api/
+- **Swagger Docs:** http://18.188.58.173:8000/api/docs/
+- **Admin:** http://18.188.58.173:8000/admin/
+
 ---
 
 ## 🏗️ Critérios de Aceite

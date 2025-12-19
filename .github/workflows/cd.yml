@@ -7,14 +7,13 @@ on:
       - "v*"
 
 env:
-  AWS_REGION: us-east-1
+  AWS_REGION: us-east-2
   ECR_REPOSITORY: voluntariado-lacrei
+  EC2_HOST: 18.188.58.173
 
 jobs:
-  deploy-staging:
-    if: github.ref == 'refs/heads/develop'
+  deploy:
     runs-on: ubuntu-latest
-    environment: staging
 
     steps:
       - uses: actions/checkout@v4
@@ -33,50 +32,33 @@ jobs:
       - name: Build, tag, and push image to ECR
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: staging-${{ github.sha }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:staging-latest .
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:staging-latest
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
-      - name: Deploy to App Runner (Staging)
-        run: |
-          aws apprunner update-service \
-            --service-arn ${{ secrets.APPRUNNER_STAGING_ARN }} \
-            --source-configuration '{"ImageRepository":{"ImageIdentifier":"${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:staging-latest","ImageRepositoryType":"ECR"}}'
-
-  deploy-production:
-    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
-    environment: production
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: Build, tag, and push image to ECR
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: prod-${{ github.sha }}
-        run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:production-latest .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:production-latest
-
-      - name: Deploy to App Runner (Production)
-        run: |
-          aws apprunner update-service \
-            --service-arn ${{ secrets.APPRUNNER_PRODUCTION_ARN }} \
-            --source-configuration '{"ImageRepository":{"ImageIdentifier":"${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:production-latest","ImageRepositoryType":"ECR"}}'
+          host: ${{ env.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 290795853785.dkr.ecr.us-east-2.amazonaws.com
+            docker pull 290795853785.dkr.ecr.us-east-2.amazonaws.com/voluntariado-lacrei:latest
+            docker stop voluntariado || true
+            docker rm voluntariado || true
+            docker run -d -p 8000:8000 \
+              -e DB_NAME=postgres \
+              -e DB_USER=postgres \
+              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+              -e DB_HOST=${{ secrets.DB_HOST }} \
+              -e DB_PORT=5432 \
+              -e SECRET_KEY=${{ secrets.SECRET_KEY }} \
+              -e DEBUG=False \
+              -e ALLOWED_HOSTS=* \
+              --name voluntariado \
+              290795853785.dkr.ecr.us-east-2.amazonaws.com/voluntariado-lacrei:latest
+            docker exec voluntariado python manage.py migrate
