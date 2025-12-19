@@ -17,8 +17,11 @@ Desenvolver uma API funcional e segura para:
 ---
 
 ```
-OBS: Optei por origens explícitas para evitar exposição indevida da API.
-Em ambiente de produção, *DEBUG* será desativado e os logs serão direcionados para serviços como CloudWatch
+OBS: 
+- Optei por origens explícitas para evitar exposição indevida da API.
+- Em ambiente de produção, *DEBUG* será desativado e os logs serão direcionados para serviços como CloudWatch
+- Em ambiente Docker, o DB_HOST aponta para o nome do serviço (db).
+- Em ambiente local sem Docker, o valor pode ser localhost.
 
 ```
 
