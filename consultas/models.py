@@ -11,5 +11,5 @@ class Consulta(models.Model):
         related_name="consultas"
     )
 
-def __str__(self):
-    return f"{self.profissional.nome_social} - {self.data}"
+    def __str__(self):
+        return f"{self.profissional.nome_social} - {self.data}"
