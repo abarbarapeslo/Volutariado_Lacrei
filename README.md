@@ -16,6 +16,12 @@ Desenvolver uma API funcional e segura para:
 
 ---
 
+```
+OBS: Optei por origens explícitas para evitar exposição indevida da API.
+Em ambiente de produção, *DEBUG* será desativado e os logs serão direcionados para serviços como CloudWatch
+
+```
+
 ## Arquitetura do Projeto
 
 ```
