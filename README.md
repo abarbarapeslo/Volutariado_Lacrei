@@ -1,10 +1,10 @@
-# 🏥 API de Gerenciamento de Consultas Médicas
+# API de Gerenciamento de Consultas Médicas
 
 API RESTful desenvolvida com **Django + Django REST Framework**, focada em boas práticas, segurança e pronta para ambiente de produção. Este projeto permite o gerenciamento de **profissionais da saúde** e **consultas médicas**, servindo como base para futuras integrações (pagamentos, deploy, monitoramento).
 
 ---
 
-## 🎯 Objetivo do Projeto
+## Objetivo do Projeto
 
 Desenvolver uma API funcional e segura para:
 
@@ -16,7 +16,7 @@ Desenvolver uma API funcional e segura para:
 
 ---
 
-## 🧱 Arquitetura do Projeto
+## Arquitetura do Projeto
 
 ```
 voluntariado/
@@ -39,7 +39,7 @@ voluntariado/
 
 ---
 
-## ⚙️ Tecnologias Utilizadas
+## Tecnologias Utilizadas
 
 * Python 3
 * Django
@@ -50,7 +50,7 @@ voluntariado/
 
 ---
 
-## 🔐 Autenticação
+## Autenticação
 
 A API utiliza **JWT (JSON Web Token)** para autenticação.
 
@@ -84,7 +84,7 @@ Authorization: Bearer SEU_ACCESS_TOKEN
 
 ---
 
-## 🛡️ Permissões
+## Permissões
 
 * **GET, HEAD, OPTIONS** → acesso público
 * **POST, PUT, PATCH, DELETE** → apenas usuários autenticados
@@ -93,7 +93,7 @@ Authorization: Bearer SEU_ACCESS_TOKEN
 
 ## 📌 Endpoints Principais
 
-### 👩‍⚕️ Profissionais
+### sProfissionais
 
 * `GET /api/profissionais/`
 * `POST /api/profissionais/`
@@ -101,7 +101,7 @@ Authorization: Bearer SEU_ACCESS_TOKEN
 * `PUT /api/profissionais/{id}/`
 * `DELETE /api/profissionais/{id}/`
 
-### 📅 Consultas
+### Consultas
 
 * `GET /api/consultas/`
 * `POST /api/consultas/`
@@ -116,7 +116,7 @@ GET /api/consultas/?profissional=1
 
 ---
 
-## 📄 Documentação da API
+## Documentação da API
 
 A documentação interativa está disponível via Swagger:
 
@@ -126,7 +126,7 @@ GET /api/docs/
 
 ---
 
-## 🚀 Como Executar o Projeto
+## Como Executar o Projeto
 
 ### 1️⃣ Clonar o repositório
 
@@ -168,7 +168,7 @@ python manage.py runserver
 
 ---
 
-## ✅ Status do Projeto
+## Status do Projeto
 
 * [x] CRUD Profissionais
 * [x] CRUD Consultas
@@ -179,15 +179,6 @@ python manage.py runserver
 
 ---
 
-## 📌 Próximas Evoluções
-
-* Versionamento da API
-* Testes automatizados
-* Paginação
-* Configuração para deploy
-
----
-
-## 👩‍💻 Desenvolvido por
+## Desenvolvido por Bárbara Lopes
 
 Projeto desenvolvido como desafio técnico com foco em impacto social e boas práticas de engenharia de software.
