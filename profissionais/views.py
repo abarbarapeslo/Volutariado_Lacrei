@@ -7,4 +7,4 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 class ProfissionalViewSet(ModelViewSet):
     queryset = Profissional.objects.all()
     serializer_class = ProfissionalSerializer
-    permissao_class = [IsAuthenticatedOrReadOnly] #permissão autenticada
+    permissaion_classes = [IsAuthenticatedOrReadOnly] #permissão autenticada

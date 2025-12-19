@@ -9,7 +9,7 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 class ConsultaViewSet(ModelViewSet):
     queryset = Consulta.objects.all()
     serializer_class = ConsultaSerializer
-    permissaon_class = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         queryset = super().get_queryset()
