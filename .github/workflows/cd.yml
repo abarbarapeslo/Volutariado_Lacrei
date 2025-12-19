@@ -2,45 +2,81 @@ name: CD
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
     tags:
       - "v*"
 
 env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: voluntariado-lacrei
 
 jobs:
-  build-and-push:
+  deploy-staging:
+    if: github.ref == 'refs/heads/develop'
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
+    environment: staging
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Log in to Container Registry
-        uses: docker/login-action@v3
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
 
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=ref,event=branch
-            type=semver,pattern={{version}}
-            type=sha,prefix=
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
+      - name: Build, tag, and push image to ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: staging-${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:staging-latest .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:staging-latest
+
+      - name: Deploy to App Runner (Staging)
+        run: |
+          aws apprunner update-service \
+            --service-arn ${{ secrets.APPRUNNER_STAGING_ARN }} \
+            --source-configuration '{"ImageRepository":{"ImageIdentifier":"${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:staging-latest","ImageRepositoryType":"ECR"}}'
+
+  deploy-production:
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push image to ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: prod-${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:production-latest .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:production-latest
+
+      - name: Deploy to App Runner (Production)
+        run: |
+          aws apprunner update-service \
+            --service-arn ${{ secrets.APPRUNNER_PRODUCTION_ARN }} \
+            --source-configuration '{"ImageRepository":{"ImageIdentifier":"${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:production-latest","ImageRepositoryType":"ECR"}}'
