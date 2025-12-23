@@ -73,12 +73,68 @@
 
 ## 🏗️ Critérios de Aceite
 
+### 🛡️ Segurança
+
+| Requisito | Status | Implementação |
+|-----------|:------:|---------------|
+| Validação e sanitização de dados | ✅ | Django ORM + DRF Serializers ([`profissionais/serializers.py`](profissionais/serializers.py), [`consultas/serializers.py`](consultas/serializers.py)) |
+| CORS configurado explicitamente | ✅ | `django-cors-headers` ([`voluntariado/settings.py#L153-L158`](voluntariado/settings.py)) |
+| Autenticação JWT | ✅ | `djangorestframework-simplejwt` ([`voluntariado/settings.py#L130-L144`](voluntariado/settings.py)) |
+| Logs de acesso e erro | ✅ | Logging configurado ([`voluntariado/settings.py#L160-L190`](voluntariado/settings.py)) |
+
+### 🧪 Testes Automatizados
+
+| Requisito | Status | Implementação |
+|-----------|:------:|---------------|
+| Testes com APITestCase | ✅ | [`profissionais/teste/test_profissionais.py`](profissionais/teste/test_profissionais.py), [`consultas/teste/test_consultas.py`](consultas/teste/test_consultas.py) |
+| Operações CRUD testadas | ✅ | Listagem, criação, atualização, remoção |
+| Casos de erro testados | ✅ | Requisições inválidas, dados ausentes, autenticação |
+| Documentação de execução | ✅ | Seção [Testes](#-testes) neste README |
+
+### 🐳 Docker e Banco de Dados
+
+| Requisito | Status | Implementação |
+|-----------|:------:|---------------|
+| Dockerfile configurado | ✅ | [`Dockerfile`](Dockerfile) |
+| docker-compose configurado | ✅ | [`docker-compose.yml`](docker-compose.yml) |
+| PostgreSQL como banco | ✅ | Configurado em [`voluntariado/settings.py#L76-L85`](voluntariado/settings.py) |
+| Ambiente replicável | ✅ | [`.env.example`](.env.example) + instruções de setup |
+
+### ⚙️ CI/CD
+
+| Requisito | Status | Implementação |
+|-----------|:------:|---------------|
+| Pipeline com Lint | ✅ | Flake8 ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) |
+| Pipeline com Testes | ✅ | pytest + coverage ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) |
+| Pipeline com Build | ✅ | Docker build ([`.github/workflows/cd.yml`](.github/workflows/cd.yml)) |
+
+### 🚀 Deploy e Rollback
+
+| Requisito | Status | Implementação |
+|-----------|:------:|---------------|
+| Deploy funcional | ✅ | AWS EC2 + RDS (http://18.188.58.173:8000/api/) |
+| Ambiente documentado | ✅ | Seção [Deploy](#-deploy) neste README |
+| Estratégia de rollback | ✅ | Seção [Rollback](#-rollback) neste README |
+
+### 📖 README
+
+| Requisito | Status | Seção |
+|-----------|:------:|-------|
+| Setup local | ✅ | [Setup Local](#-setup-local) |
+| Setup via Docker | ✅ | [Docker](#-docker) |
+| Execução de testes | ✅ | [Testes](#-testes) |
+| Decisões técnicas | ✅ | [Decisões Técnicas](#-decisões-técnicas) |
+| Fluxo de CI/CD | ✅ | [CI/CD](#-cicd) |
+| Estratégia de rollback | ✅ | [Rollback](#-rollback) |
+
+### 📋 Resumo Geral
+
 | Item | Status | Observações |
 |------|:------:|-------------|
 | CRUD funcional de profissionais e consultas | ✅ | Incluindo busca por ID do profissional |
 | Segurança (sanitização, CORS, autenticação) | ✅ | Proteção contra SQL Injection, API segura |
 | Docker + PostgreSQL configurados | ✅ | Setup replicável para qualquer ambiente |
-| Poetry (gerenciamento de dependências) | ✅ | pyproject.toml configurado |
+| Poetry (gerenciamento de dependências) | ✅ | [`pyproject.toml`](pyproject.toml) configurado |
 | GitHub Actions (CI/CD) | ✅ | Lint, testes, build e deploy automatizados |
 | Deploy funcional (AWS EC2 + RDS) | ✅ | Ambiente de produção |
 | Testes unitários e de erro com APITestCase | ✅ | Cobertura dos endpoints principais |
